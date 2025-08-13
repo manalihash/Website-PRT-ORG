@@ -1,0 +1,22 @@
+pipeline {
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials("dhub")
+    }
+    agent {
+        label 'k-m'
+    }
+    stages {
+        stage('Docker') {
+            steps {
+               sh 'sudo docker login -u ${DOCKERGUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}'
+               sh 'sudo docker build /home/ubuntu/jenkins/workspace/test-prt-pipeline/ -t apache2'
+               sh 'sudo docker push apache2'
+            }
+        stage('k8s') {
+            steps {
+               sh 'kubectl apply -f deploy.yaml'
+               sh 'kubectl apply -f service.yaml'
+            }
+        }
+    }
+}
